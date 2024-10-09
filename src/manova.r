@@ -1,6 +1,6 @@
 # Manova demo using Skulls dataset.
 
-# Add Your Name Here
+# Orion Grieco
 
 rm(list = ls()) # clear out the variables from memory to make a clean execution of the code.
 
@@ -9,19 +9,19 @@ graphics.off() # clear out all plots from previous work.
 
 cat("\014") # clear the console
 
-#library(tidyverse)
+# library(tidyverse)
 # A better way to code...
 # Find out if the library is not already installed and\
 # if not, install the library and then load it.
 
-if(!require('tidyverse')) {
-  install.packages('tidyverse')
-  library('tidyverse')
+if (!require("tidyverse")) {
+  install.packages("tidyverse")
+  library("tidyverse")
 }
 
-if(!require('HSAUR2')) {
-  install.packages('HSAUR2')
-  library('HSAUR2')
+if (!require("HSAUR2")) {
+  install.packages("HSAUR2")
+  library("HSAUR2")
 }
 
 # The skulls data concerns measurements made on Egyptian skulls from five epochs.
@@ -51,16 +51,32 @@ means_long <- means_by_epoch %>%
   pivot_longer(cols = -epoch, names_to = "measurement", values_to = "mean_value")
 
 # Create the plot
-ggplot(means_long, aes(x = epoch, y = mean_value, fill = measurement)) +
+plot(ggplot(means_long, aes(x = epoch, y = mean_value, fill = measurement)) +
   geom_bar(stat = "identity", position = "dodge") +
-  labs(title = "Mean Values of Skull Measurements by Epoch",
-       x = "Epoch",
-       y = "Mean Value") +
+  labs(
+    title = "Mean Values of Skull Measurements by Epoch",
+    x = "Epoch",
+    y = "Mean Value"
+  ) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)))
 
 ##################################
 # Add manova code below
 ##################################
 
-# TODO
+skulls.manova <- skulls %>%
+  group_by(epoch) %>%
+  summarise(across(where(is.numeric), mean, na.rm = TRUE))
+
+
+skulls.manova_1 <- manova(cbind(mb, bh, bl, nh) ~ as.factor(epoch), data = skulls)
+
+print(summary(skulls.manova_1, test = "Hotelling-Lawley"))
+print(summary(skulls.manova_1, test = "Roy"))
+print(summary(skulls.manova_1, test = "Pillai"))
+print(summary(skulls.manova_1, test = "Wilks"))
+
+summary.aov(skulls.manova_1)
+cat("\n Summary of the ANOVA table:\n")
+print(summary.aov(skulls.manova_1))
