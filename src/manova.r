@@ -65,9 +65,10 @@ plot(ggplot(means_long, aes(x = epoch, y = mean_value, fill = measurement)) +
 # Add manova code below
 ##################################
 
-skulls.manova <- skulls %>%
+skulls.manova <- skulls %>% # nolint
   group_by(epoch) %>%
   summarise(across(where(is.numeric), mean, na.rm = TRUE))
+
 
 
 skulls.manova_1 <- manova(cbind(mb, bh, bl, nh) ~ as.factor(epoch), data = skulls)
@@ -80,3 +81,8 @@ print(summary(skulls.manova_1, test = "Wilks"))
 summary.aov(skulls.manova_1)
 cat("\n Summary of the ANOVA table:\n")
 print(summary.aov(skulls.manova_1))
+
+
+skulls.manova_2 <- manova(cbind(mb, bh, bl, nh) ~ as.factor(epoch), data = skulls, subset = as.factor(epoch) %in% c("c4000BC", "c200BC"))
+cat("\n Summary of the SECOND ANOVA table:\n")
+print(summary.aov(skulls.manova_2))
